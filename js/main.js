@@ -1,4 +1,3 @@
-// ===== Footer year =====
 document.getElementById('year').textContent = new Date().getFullYear();
 
 // ===== Custom cursor =====
@@ -8,13 +7,13 @@ if (cursor && matchMedia('(hover: hover)').matches) {
     cursor.style.left = e.clientX + 'px';
     cursor.style.top = e.clientY + 'px';
   });
-  document.querySelectorAll('a, button, .compare').forEach((el) => {
+  document.querySelectorAll('a, button, .compare, summary, input, select, textarea').forEach((el) => {
     el.addEventListener('mouseenter', () => cursor.classList.add('big'));
     el.addEventListener('mouseleave', () => cursor.classList.remove('big'));
   });
 }
 
-// ===== Nav hide on scroll down, show on scroll up =====
+// ===== Nav: hide on scroll down, show on scroll up =====
 const nav = document.getElementById('nav');
 let lastY = window.scrollY;
 window.addEventListener('scroll', () => {
@@ -24,27 +23,19 @@ window.addEventListener('scroll', () => {
   lastY = y;
 }, { passive: true });
 
-// mobile nav toggle (simple: scroll links already anchor; toggle just shows list as column overlay)
+// ===== Mobile nav =====
 const navToggle = document.getElementById('navToggle');
-if (navToggle) {
-  navToggle.addEventListener('click', () => {
-    const links = document.querySelector('.nav__links');
-    const open = links.style.display === 'flex';
-    links.style.display = open ? 'none' : 'flex';
-    links.style.flexDirection = 'column';
-    links.style.position = 'absolute';
-    links.style.top = '64px';
-    links.style.right = '24px';
-    links.style.background = '#14161a';
-    links.style.border = '1px solid rgba(245,242,234,0.12)';
-    links.style.borderRadius = '14px';
-    links.style.padding = '18px 24px';
-    links.style.gap = '16px';
-  });
-}
+const navLinks = document.getElementById('navLinks');
+navToggle.addEventListener('click', () => {
+  const open = navLinks.classList.toggle('open');
+  navToggle.setAttribute('aria-expanded', String(open));
+});
+navLinks.querySelectorAll('a').forEach((a) => a.addEventListener('click', () => {
+  navLinks.classList.remove('open');
+  navToggle.setAttribute('aria-expanded', 'false');
+}));
 
 // ===== Scroll reveal =====
-const revealEls = document.querySelectorAll('.reveal');
 const io = new IntersectionObserver((entries) => {
   entries.forEach((entry) => {
     if (entry.isIntersecting) {
@@ -52,67 +43,91 @@ const io = new IntersectionObserver((entries) => {
       io.unobserve(entry.target);
     }
   });
-}, { threshold: 0.15 });
-revealEls.forEach((el) => io.observe(el));
+}, { threshold: 0.12 });
+document.querySelectorAll('.reveal').forEach((el) => io.observe(el));
 
-// ===== Animated counters =====
-const counters = document.querySelectorAll('[data-count]');
-const counterIO = new IntersectionObserver((entries) => {
-  entries.forEach((entry) => {
-    if (!entry.isIntersecting) return;
-    const el = entry.target;
-    const target = parseInt(el.dataset.count, 10);
-    const duration = 1200;
-    const start = performance.now();
-    function tick(now) {
-      const p = Math.min((now - start) / duration, 1);
-      el.textContent = Math.floor(p * target);
-      if (p < 1) requestAnimationFrame(tick);
-      else el.textContent = target;
-    }
-    requestAnimationFrame(tick);
-    counterIO.unobserve(el);
-  });
-}, { threshold: 0.4 });
-counters.forEach((el) => counterIO.observe(el));
+// ===== Sticky mobile CTA: show after hero, hide while the form is on screen =====
+const mobileCta = document.getElementById('mobileCta');
+const hero = document.getElementById('top');
+const contact = document.getElementById('contact');
+let heroVisible = true;
+let contactVisible = false;
+const syncCta = () => mobileCta.classList.toggle('show', !heroVisible && !contactVisible);
+new IntersectionObserver(([e]) => { heroVisible = e.isIntersecting; syncCta(); }, { threshold: 0.1 }).observe(hero);
+new IntersectionObserver(([e]) => { contactVisible = e.isIntersecting; syncCta(); }, { threshold: 0.1 }).observe(contact);
 
 // ===== Before/after compare slider =====
 function initCompare(root) {
   const after = root.querySelector('.compare__after');
   const handle = root.querySelector('.compare__handle');
   let dragging = false;
-
   function setPos(clientX) {
     const rect = root.getBoundingClientRect();
-    let pct = ((clientX - rect.left) / rect.width) * 100;
-    pct = Math.max(0, Math.min(100, pct));
+    const pct = Math.max(0, Math.min(100, ((clientX - rect.left) / rect.width) * 100));
     after.style.clipPath = `inset(0 ${100 - pct}% 0 0)`;
     handle.style.left = pct + '%';
   }
-
   root.addEventListener('pointerdown', (e) => { dragging = true; setPos(e.clientX); });
   window.addEventListener('pointermove', (e) => { if (dragging) setPos(e.clientX); });
-  window.addEventListener('pointerup', () => dragging = false);
+  window.addEventListener('pointerup', () => { dragging = false; });
   root.addEventListener('mousemove', (e) => { if (!dragging) setPos(e.clientX); });
 }
 document.querySelectorAll('.compare').forEach(initCompare);
 
-// ===== "More Work" grid (My Design Lab) =====
+// ===== "More websites" grid =====
 const MORE_WORK = [
   'Rio Rancho Orthodontics Redesign',
   'Argyle Orthodontics Redesign',
   'Fairfield Beach Orthodontics Redesign',
   'Golden Orthodontics Redesign',
   'Oglo Lights Web Design',
-  'Solar New York — Website Design & Build',
-  'Winter Fashion E-Commerce Website',
+  'Solar New York — Design & Build',
+  'Winter Fashion E-Commerce',
 ];
 const moreGrid = document.getElementById('moreGrid');
-if (moreGrid) {
-  MORE_WORK.forEach((name, i) => {
-    const div = document.createElement('div');
-    div.className = 'more-grid__item';
-    div.innerHTML = `<span class="more-grid__item-num">0${i + 1}</span><span class="more-grid__item-name">${name}</span>`;
-    moreGrid.appendChild(div);
-  });
-}
+MORE_WORK.forEach((name, i) => {
+  const div = document.createElement('div');
+  div.className = 'more-grid__item';
+  const num = document.createElement('span');
+  num.className = 'more-grid__item-num';
+  num.textContent = String(i + 1).padStart(2, '0');
+  const title = document.createElement('span');
+  title.className = 'more-grid__item-name';
+  title.textContent = name;
+  div.append(num, title);
+  moreGrid.appendChild(div);
+});
+
+// ===== Quote form: AJAX submit with inline confirmation =====
+const form = document.getElementById('quoteForm');
+const statusEl = document.getElementById('formStatus');
+form.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const btn = form.querySelector('button[type="submit"]');
+  btn.disabled = true;
+  btn.textContent = 'Sending…';
+  statusEl.className = 'form__status';
+  statusEl.textContent = '';
+  const data = new FormData(form);
+  data.set('phone', `${data.get('phone_country')} ${data.get('phone_number')}`.trim());
+  data.delete('phone_country');
+  data.delete('phone_number');
+  try {
+    const res = await fetch(form.action.replace('formsubmit.co/', 'formsubmit.co/ajax/'), {
+      method: 'POST',
+      headers: { Accept: 'application/json' },
+      body: data,
+    });
+    const json = await res.json().catch(() => ({}));
+    if (!res.ok || String(json.success) !== 'true') throw new Error(json.message || res.status);
+    form.reset();
+    statusEl.classList.add('ok');
+    statusEl.textContent = "Got it! Check your inbox for a confirmation. I'll contact you by email or WhatsApp to book your free call.";
+    btn.textContent = 'Sent ✓';
+  } catch {
+    statusEl.classList.add('err');
+    statusEl.innerHTML = 'Something went wrong. Please message me on <a href="https://wa.me/16088662937" style="color:var(--accent)">WhatsApp</a> or email <a href="mailto:info.nagamui@gmail.com" style="color:var(--accent)">info.nagamui@gmail.com</a>.';
+    btn.disabled = false;
+    btn.textContent = 'Send & book my free call →';
+  }
+});

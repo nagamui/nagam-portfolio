@@ -1,28 +1,24 @@
-# Nagham Mousa — Portfolio
+# Nagam Mousa — Portfolio
 
-A single-page portfolio for Nagham Mousa, Product Designer, built from her
-Notion case studies (Orem Orthodontics, Focusize, PharmAssist, My Design Lab).
+Portfolio site for Nagam Mousa, web designer & developer for US small businesses
+(home services, facility services, healthcare).
 
-No build step — plain HTML/CSS/JS. Open `index.html` directly or serve it:
+Plain HTML/CSS/JS, no build step. To run locally:
 
 ```bash
 python3 -m http.server 8080
 ```
 
 ## Structure
-- `index.html` — all markup/sections
-- `css/style.css` — design tokens + styles (see `:root` for the palette/type scale)
-- `js/main.js` — cursor, scroll reveals, counters, before/after slider, "more work" grid
-- `assets/img/` — optimized `.webp` images pulled from the Notion case studies
+- `index.html` — all sections and copy
+- `css/style.css` — design tokens (top of file) and styles
+- `js/main.js` — scroll reveals, before/after slider, sticky mobile CTA, quote form
+- `assets/img/` — optimized `.webp` screenshots of client projects
 
-## Design system notes
-This was built from the content in the Notion portfolio page since the original
-Canva "Nagham Design System" PDF/SVG exports weren't received in this session.
-The visual system here (dark ink background, lime `#d4ff3d` accent, Fraunces +
-Inter + Space Grotesk type) is an original interpretation — swap the tokens at
-the top of `css/style.css` if you want to match the Canva deck exactly once you
-share it.
+## Quote form
+The form posts to [FormSubmit](https://formsubmit.co) and is delivered to
+`info.nagamui@gmail.com`. The first submission sends an activation email to
+that address; click the link once and every later submission is delivered.
 
 ## Deploying
-Push to GitHub and enable **Settings → Pages → Deploy from branch (main / root)**
-— no build step needed.
+Settings → Pages → Deploy from branch → `main` / root.
